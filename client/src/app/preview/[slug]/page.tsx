@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { render } from '@react-email/render';
 import { promises as fs } from 'fs';
 import { dirname, join as pathJoin } from 'path';
@@ -16,17 +17,32 @@ export async function generateStaticParams() {
   return paths;
 }
 
-export default async function Page({ params }) {
+export default async function Page({ params, searchParams }) {
   const { emails, filenames } = await getEmails();
   const template = filenames.filter((email) => {
     const [fileName] = email.split('.');
     return params.slug === fileName;
   });
 
+  const ps = {}
+  const env = {}
+
+  Object.keys(process.env)
+    .filter(p => p.indexOf('PREVIEWER_') === 0)
+    .forEach(p => {
+      process.env[p.substring('PREVIEWER_'.length)] = process.env[p];
+      env[p.substring('PREVIEWER_'.length)] = process.env[p];
+      ps[p.substring('PREVIEWER_'.length)] = '';
+    })
+
+  Object.keys(searchParams).forEach((p) => {
+    ps[p] = String(searchParams[p]);
+  })
+
   const Email = (await import(`../../../../emails/${params.slug}`)).default;
   const previewProps = Email.PreviewProps || {};
-  const markup = render(<Email {...previewProps} />, { pretty: true });
-  const plainText = render(<Email {...previewProps} />, { plainText: true });
+  const markup = render(<Email {...previewProps} params={ps} />, { pretty: true });
+  const plainText = render(<Email {...previewProps} params={ps} />, { plainText: true });
   const basePath = pathJoin(process.cwd(), CONTENT_DIR);
   const path = pathJoin(basePath, template[0]);
 
@@ -44,6 +60,8 @@ export default async function Page({ params }) {
   return (
     <Preview
       navItems={emails}
+      params={_.pick(ps, Email.PARAMS)}
+      env={env}
       slug={params.slug}
       markup={markup}
       reactMarkup={reactMarkup}

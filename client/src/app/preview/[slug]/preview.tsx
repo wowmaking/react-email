@@ -8,6 +8,8 @@ import { Tooltip } from '../../../components/tooltip';
 
 export default function Preview({
   navItems,
+  params,
+  env,
   slug,
   markup,
   reactMarkup,
@@ -45,6 +47,8 @@ export default function Preview({
   return (
     <Shell
       navItems={navItems}
+      params={params}
+      env={env}
       title={slug}
       markup={markup}
       activeView={activeView}

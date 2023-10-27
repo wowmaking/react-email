@@ -3,12 +3,15 @@ import * as React from 'react';
 import { Logo } from './logo';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
+import { Parameters } from './parameters';
 
 type ShellElement = React.ElementRef<'div'>;
 type RootProps = React.ComponentPropsWithoutRef<'div'>;
 
 interface ShellProps extends RootProps {
   navItems: string[];
+  params: any;
+  env: any;
   markup?: string;
   activeView?: string;
   setActiveView?: (view: string) => void;
@@ -16,7 +19,7 @@ interface ShellProps extends RootProps {
 
 export const Shell = React.forwardRef<ShellElement, Readonly<ShellProps>>(
   (
-    { title, navItems, children, markup, activeView, setActiveView },
+    { title, navItems, params, env, children, markup, activeView, setActiveView, },
     forwardedRef,
   ) => {
     const [showNav, setShowNav] = React.useState(false);
@@ -75,6 +78,7 @@ export const Shell = React.forwardRef<ShellElement, Readonly<ShellProps>>(
               <div className="mx-auto">{children}</div>
             </div>
           </main>
+          <Parameters params={params} env={env} />
         </div>
       </div>
     );
